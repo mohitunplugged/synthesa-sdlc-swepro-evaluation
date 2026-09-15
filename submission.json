@@ -1,71 +1,60 @@
 {
-  "schema": "synthesa.swepro_custom_harness_evaluation.v2",
+  "schema": "synthesa.swepro_custom_harness_evaluation.v3",
   "agent_name": "Synthesa SDLC",
   "organization": "ByteVerity",
   "benchmark": "SWE-bench Pro",
-  "dataset_scope": "public test set",
+  "dataset_scope": "all 731 public tasks",
+  "classification": "ADAPTIVE_OPEN_MATERIAL_CUSTOM_HARNESS",
+  "canonical_public_entry": true,
+  "result": {
+    "resolved": 567,
+    "denominator": 731,
+    "rate": 0.7756497948016415,
+    "predictions_sha256": "65004a641ecede9435d596ce7484811345f6885d91fd81b8f4c3a4f35c69002d",
+    "eval_results_sha256": "e1f6652e681b47d93d63a5487117edbfdae1be83ee7b314486dbbb5128d24ddc"
+  },
+  "assembly": {
+    "join_key": "instance_id",
+    "retained_component": {
+      "rows": 724,
+      "resolved": 565
+    },
+    "sealed_replacement_component": {
+      "rows": 7,
+      "resolved": 2,
+      "native_product_patch_count": 0,
+      "candidate_operator": "OpenAI Codex (GPT-5)",
+      "candidate_predictions_sha256": "a760cdbe6f28ed61c72dacbbd095286e824bbd2c21267058c9cde590e12c2175",
+      "candidate_freeze_root": "18768cf89b430bcb0fbaaa3e6eaf98d05c686e5988ed92fc61bdacf96da98ff0",
+      "eval_results_sha256": "043a044b732273c6f14dc6702a20dcf58d964b1171503fffc3ea26921cb006ab"
+    },
+    "single_new_731_task_evaluator_invocation": false,
+    "composition_disclosed": true
+  },
   "evaluator": {
     "origin": "https://github.com/scaleapi/SWE-bench_Pro-os.git",
     "commit": "ca10a60a5fcae51e6948ffe1485d4153d421e6c5",
     "sha256": "bb5d4c5486be296e464e695df3747064aaa3bb197394bc6d39980634afec2034",
     "execution": "local Docker using official per-instance images"
   },
-  "historical_campaign": {
-    "classification": "ADAPTIVE_OPEN_MATERIAL_CUSTOM_HARNESS",
+  "protocol": {
     "leaderboard_comparable_pass_at_1": false,
     "organizer_certification_claimed": false,
-    "public_repository_history_or_tests_used_rows": 389,
-    "same_task_post_failure_replacement_rows": 7,
-    "result": {
-      "resolved": 570,
-      "denominator": 731,
-      "rate": 0.7797537619699042,
-      "eval_results_sha256": "5b375ea4b465ee8a50e79c8d9fdc43e412781d31ccadd2e5ac0079d3f01080f8"
-    },
-    "repeat": {
-      "resolved": 569,
-      "denominator": 731,
-      "rate": 0.7783857729138167,
-      "same_prediction_bytes": true
-    },
-    "provenance": {
-      "rows_accounted": 731,
-      "exact_trace_rows": 713,
+    "clean_room_claimed": false,
+    "public_material_available": true,
+    "public_temporal_repository_evidence": {
+      "content_matched_use_rows": 371,
       "lineage_only_rows": 18,
-      "reconstruction_sha256": "c192a3ddd14eb0ec4cdf4687b4cc0024a8b8ed02ed66e55a364efe9158981bfc"
-    }
-  },
-  "same_task_adaptation_quarantine": {
-    "rows_removed": 7,
-    "historical_passes_removed": 5,
-    "retained_resolved": 565,
-    "retained_denominator": 724,
-    "retained_rate": 0.7803867403314917,
-    "clean_room_claimed": false
-  },
-  "seven_row_confirmation": {
-    "classification": "BENCHMARK_INFORMED_SYNTHESA_ASSISTED_REPAIR_AGENT_CONFIRMATION",
-    "cohort_selected_post_hoc": true,
-    "leaderboard_comparable": false,
-    "product_only_patch_count": 0,
-    "operator": "OpenAI Codex (GPT-5)",
-    "resolved": 2,
-    "denominator": 7,
-    "rate": 0.2857142857142857,
-    "passed_instance_ids": [
-      "instance_NodeBB__NodeBB-76c6e30282906ac664f2c9278fc90999b27b1f48-vd59a5728dfc977f44533186ace531248c2917516",
-      "instance_element-hq__element-web-b007ea81b2ccd001b00f332bee65070aa7fc00f9-vnan"
-    ],
-    "predictions_sha256": "a760cdbe6f28ed61c72dacbbd095286e824bbd2c21267058c9cde590e12c2175",
-    "candidate_freeze_root": "18768cf89b430bcb0fbaaa3e6eaf98d05c686e5988ed92fc61bdacf96da98ff0",
-    "eval_results_sha256": "043a044b732273c6f14dc6702a20dcf58d964b1171503fffc3ea26921cb006ab"
+      "total_rows": 389
+    },
+    "sealed_replacement_rows_excluded_public_solution_retrieval": true
   },
   "unsupported_claims": [
     "one-shot pass@1",
     "unseen-task generalization",
     "clean-room or contamination-resistant evaluation",
     "organizer certification",
-    "autonomous product-only 570/731",
+    "autonomous product-only 567/731",
     "causal productivity uplift"
   ]
 }

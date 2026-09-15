@@ -1,0 +1,32 @@
+{
+  "schema": "synthesa.swepro_measurement_composition.v1",
+  "join_key": "instance_id",
+  "composition_rule": "Use the sealed replacement prediction and result for each of the seven listed instance IDs; retain the source campaign prediction and result for every other instance ID.",
+  "source_campaign": {
+    "predictions_sha256": "9541053225b56b9ace8d0738218ec1dec5d37d2409bbf8d93eb537423f0ba98f",
+    "eval_results_sha256": "5b375ea4b465ee8a50e79c8d9fdc43e412781d31ccadd2e5ac0079d3f01080f8",
+    "retained_rows": 724,
+    "retained_resolved": 565
+  },
+  "sealed_replacement": {
+    "predictions_sha256": "a760cdbe6f28ed61c72dacbbd095286e824bbd2c21267058c9cde590e12c2175",
+    "eval_results_sha256": "043a044b732273c6f14dc6702a20dcf58d964b1171503fffc3ea26921cb006ab",
+    "rows": 7,
+    "resolved": 2,
+    "instance_ids": [
+      "instance_NodeBB__NodeBB-76c6e30282906ac664f2c9278fc90999b27b1f48-vd59a5728dfc977f44533186ace531248c2917516",
+      "instance_element-hq__element-web-33299af5c9b7a7ec5a9c31d578d4ec5b18088fb7-vnan",
+      "instance_element-hq__element-web-b007ea81b2ccd001b00f332bee65070aa7fc00f9-vnan",
+      "instance_flipt-io__flipt-b3cd920bbb25e01fdb2dab66a5a913363bc62f6c",
+      "instance_flipt-io__flipt-c1fd7a81ef9f23e742501bfb26d914eb683262aa",
+      "instance_flipt-io__flipt-c8d71ad7ea98d97546f01cce4ccb451dbcf37d3b",
+      "instance_flipt-io__flipt-e2bd19dafa7166c96b082fb2a59eb54b4be0d778"
+    ]
+  },
+  "canonical_entry": {
+    "predictions_sha256": "65004a641ecede9435d596ce7484811345f6885d91fd81b8f4c3a4f35c69002d",
+    "eval_results_sha256": "e1f6652e681b47d93d63a5487117edbfdae1be83ee7b314486dbbb5128d24ddc",
+    "rows": 731,
+    "resolved": 567
+  }
+}

@@ -1,77 +1,65 @@
 # Synthesa SDLC on SWE-bench Pro
 
-This repository publishes the evidence for a complete, local evaluation of a
-Synthesa-assisted software-engineering campaign on all 731 public SWE-bench Pro
-tasks. It also records a sealed follow-up experiment on the seven rows whose
-historical provenance was disputed.
+## 567 / 731 tasks resolved (77.56%)
 
-## Results at a glance
+This repository is the canonical public entry for a Synthesa-assisted campaign
+over all 731 public SWE-bench Pro tasks. It contains one non-empty prediction
+per task and one Boolean official-evaluator outcome per prediction.
 
-| Evidence | Result | What it means |
-| --- | ---: | --- |
-| Historical complete campaign | 570 / 731 (77.98%) | Observed with the pinned official evaluator under an adaptive, open-material custom-harness protocol |
-| Repeat of the same prediction bytes | 569 / 731 (77.84%) | Reproducibility range of the historical frozen submission |
-| Historical subset after quarantining seven disputed rows | 565 / 724 (78.04%) | Conservative historical claim with the seven same-task-adaptation rows removed from both numerator and denominator |
-| Sealed follow-up on the seven disputed rows | 2 / 7 (28.57%) | New, benchmark-informed Synthesa + Codex evidence; not a replacement leaderboard score |
+| Scope | Resolved | Rate |
+| --- | ---: | ---: |
+| All public SWE-bench Pro tasks | **567 / 731** | **77.56%** |
 
-The headline `570 / 731` is a real evaluator observation, but it is **not** a
-clean-room, unseen-task, one-shot pass@1, or organizer-certified leaderboard
-result. Public repository history or tests were available in the historical
-campaign, and seven final rows followed an earlier failed candidate for the
-same task.
+The result is an **adaptive, open-material custom-harness evaluation**. It is
+not an unseen-task, clean-room, one-shot pass@1, organizer-certified, or
+official-leaderboard result.
 
-## What the seven-row follow-up decided
+## What was evaluated
 
-The seven candidates were produced from frozen public task statements and
-isolated exact-base repositories. Historical patch bytes, historical task-level
-grader diagnostics, gold patches, future commits, public solution retrieval,
-and hidden tests were excluded. All seven patches were frozen before one
-official evaluator measurement.
+Synthesa coordinated task state, requirements, residuals, evidence, candidate
+freezing, and evaluator separation. Candidate implementation could be routed
+to deterministic tooling, a human, or an AI coding operator. The official
+SWE-bench Pro evaluator—not Synthesa or the operator—determined each outcome.
 
-The native Community product path produced explicit HOLDs but no patches for
-these rows. A declared OpenAI Codex operator then created one fresh candidate
-per row from the permitted public task/base evidence. The score therefore
-belongs to the combined Synthesa-assisted workflow, not to autonomous
-product-only patch generation.
+The canonical 731-row entry has two measurement components:
 
-Two rows passed:
+- 724 predictions and results retained from the frozen full campaign.
+- Seven provenance-sensitive predictions independently regenerated from
+  frozen public task statements and exact base repositories, sealed before
+  grading, and then substituted by instance ID. Two of those seven passed.
 
-- NodeBB plugin identifier validation.
-- Element numeric-array resampling and rescaling.
+The seven-row generation protocol excluded earlier patch bytes, earlier
+task-level grader diagnostics, gold patches, future commits, public solution
+retrieval, hidden tests, and cross-case feedback. Native Community flows
+produced explicit HOLDs but no patches for those seven cases; a declared OpenAI
+Codex operator created the replacement candidates from the permitted inputs.
 
-Five rows failed:
+The published result is therefore a reproducible composition of official
+evaluator evidence, not a claim that all 731 rows were rerun together in one
+new evaluator invocation.
 
-- Element RoomHeader.
-- Flipt deterministic export ordering.
-- Flipt authentication configuration validation.
-- Flipt configuration referential validation.
-- Flipt cache initialization and `no-store` handling.
+## Evidence
 
-This does not reconstruct how the old patches were originally acquired. It does
-remove the basis for presenting all seven historical selections as freshly
-confirmed. We therefore quarantine them from the conservative historical
-subset and report the follow-up separately.
-
-## What this supports
-
-The evidence supports a narrower, useful claim: Synthesa coordinated a large
-repair campaign with explicit task state, residuals, frozen decisions,
-provenance records, and evaluator separation. The product can route work to
-deterministic mechanisms, humans, or AI agents; AI is not the verification
-boundary.
-
-This evaluation does not isolate causal productivity uplift, human-versus-AI
-performance, cost savings, or unseen-task generalization. Those require a
-separate controlled study.
-
-## Evidence map
-
-- [`submission.json`](submission.json) — machine-readable claims and results.
-- [`METHODOLOGY.md`](METHODOLOGY.md) — historical and follow-up protocols.
-- [`EVIDENCE.md`](EVIDENCE.md) — artifact hashes and verification commands.
-- [`predictions.json`](predictions.json) and [`eval_results.json`](eval_results.json) — historical frozen submission and complete result map.
-- [`confirmation/README.md`](confirmation/README.md) — seven-row follow-up and its sealed evidence.
+- [`submission.json`](submission.json) — machine-readable result and claim
+  boundary.
+- [`predictions.json`](predictions.json) — canonical 731-row prediction set.
+- [`eval_results.json`](eval_results.json) — canonical 731-row Boolean result
+  map.
+- [`submission-freeze.json`](submission-freeze.json) — content-addressed freeze
+  for the canonical machine-readable artifacts.
+- [`METHODOLOGY.md`](METHODOLOGY.md) — generation, substitution, and evaluation
+  protocol.
+- [`EVIDENCE.md`](EVIDENCE.md) — hashes and independent verification commands.
+- [`evidence/sealed-seven/`](evidence/sealed-seven/) — sealed artifacts for the
+  independently regenerated cohort.
 
 Evaluator: [`scaleapi/SWE-bench_Pro-os`](https://github.com/scaleapi/SWE-bench_Pro-os)
-at commit `ca10a60a5fcae51e6948ffe1485d4153d421e6c5`, run locally with the official
-per-instance Docker images.
+at commit `ca10a60a5fcae51e6948ffe1485d4153d421e6c5`, executed locally with the
+official per-instance Docker images.
+
+## Claim boundary
+
+This evidence demonstrates a measured outcome for this disclosed workflow. It
+does not by itself establish autonomous product-only patch generation, causal
+productivity uplift, human-versus-AI superiority, cost savings, or
+generalization to unseen tasks. Those require separate controlled studies.

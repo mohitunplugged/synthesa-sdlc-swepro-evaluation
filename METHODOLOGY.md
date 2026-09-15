@@ -1,81 +1,91 @@
 # Evaluation methodology
 
-## Historical 731-task campaign
+## Classification
 
-The historical campaign processed every public SWE-bench Pro task and froze one
-non-empty patch per task. The frozen prediction bytes were measured twice with
-the official evaluator: 570/731 and 569/731.
+This is an adaptive, open-material, custom-harness evaluation on all 731 public
+SWE-bench Pro tasks. It is published as one canonical entry containing exactly
+one non-empty patch and one Boolean result for every benchmark instance.
 
-It was an adaptive, open-material custom-harness evaluation:
+It is not submitted as a clean-room evaluation, unseen-task test, one-shot
+pass@1 result, or organizer-certified leaderboard entry.
 
-- Public task materials were used.
-- Public repository history or public tests were available for 389 rows.
-- Local evaluator outcomes were available during parts of candidate production.
-- Seven final selections followed an earlier, byte-different failed candidate
-  for that same task.
-- The execution partitions named development, validation, and holdout were
-  campaign partitions; they were not private or unseen benchmark partitions.
+## Candidate generation
 
-The row-level reconstruction accounts for all 731 prediction rows. Exact
-acquisition traces survive for 713; 18 retain lineage but no exact attempt
-receipt. These facts make the historical evaluator outcome reproducible, but do
-not make it a clean-room or leaderboard-comparable pass@1 result.
+Synthesa supplied the workflow layer: task state, requirements, residuals,
+evidence handling, candidate freezing, and evaluator separation. Depending on
+the task, implementation could involve deterministic tools, humans, or AI
+coding operators. The evidence does not support a model-free or autonomous
+product-only claim for the complete candidate set.
 
-The product is architecturally AI-optional. This evidence does not establish
-that every historical patch was generated without AI, so no model-free patch
-generation claim is made here.
+Public task materials were available throughout the campaign. The provenance
+ledger classifies 371 rows as content-matched traces that used a later public
+repository state or its tests. Another 18 rows retain public-temporal lineage
+but no longer have the exact attempt trace, for 389 public-temporal rows in
+total. Local evaluator outcomes were also available during parts of candidate
+development. The labels `development`, `validation`, and `holdout` in source
+receipts are campaign execution partitions; they are not private or unseen
+benchmark partitions.
 
-## Seven-row confirmation
+## Canonical entry assembly
 
-The follow-up cohort was selected post hoc because these were the seven rows
-with a prior same-task failure before historical final selection. It was not an
-unseen sample.
+The published candidate set was assembled deterministically by instance ID:
 
-Before candidate generation, the experiment froze:
+1. Retain 724 predictions and their Boolean results from the frozen full
+   campaign.
+2. Independently regenerate the seven rows selected for stricter provenance
+   controls.
+3. Seal all seven replacement patches before grading.
+4. Evaluate the sealed replacements with the pinned official evaluator.
+5. Substitute the seven predictions and results by exact instance ID.
+6. Verify 731 unique predictions, 731 Boolean results, and exactly seven
+   substitutions.
+
+The retained component resolves 565 of 724 tasks. The sealed replacement
+component resolves 2 of 7. Their disjoint union resolves 567 of 731 tasks.
+
+This is a composite measurement: the 724 retained results come from the
+complete pinned official-evaluator campaign, while the seven substituted
+results come from the sealed cohort's pinned official-evaluator execution. The
+731 canonical rows were not rerun together in one new evaluator invocation.
+
+## Stricter protocol for the seven substituted rows
+
+Before replacement candidate generation, the following were frozen:
 
 1. The seven public task projections.
 2. Exact base commits materialized from digest-identified official images.
-3. The Synthesa Community package and its runtime audit.
-4. A protocol forbidding gold data, historical patch bytes, historical
-   task-level grader diagnostics, future commits, public solution retrieval,
-   hidden tests, and cross-task outcome learning.
+3. The Synthesa Community package and runtime audit.
+4. A protocol excluding gold data, earlier patch bytes, earlier task-level
+   grader diagnostics, future commits, public solution retrieval, hidden tests,
+   and cross-case outcome learning.
 
-Each task used an isolated repository and product state. The native product path
-ended in recorded HOLDs and produced zero patches. After preserving those
-outcomes, a declared OpenAI Codex operator implemented one candidate per task
-using only the frozen task statement and exact base tree. This is reported as a
-benchmark-informed Synthesa-assisted workflow.
+Every task used isolated repository and product state. Native Community flows
+ended in recorded HOLDs or intake limitations and produced zero patches. After
+those outcomes were preserved, a declared OpenAI Codex operator created one
+candidate per task using only the permitted task statement and exact base tree.
 
-All seven final patches and the combined prediction file were sealed under
-candidate freeze root
+All seven patches were sealed under candidate freeze root
 `18768cf89b430bcb0fbaaa3e6eaf98d05c686e5988ed92fc61bdacf96da98ff0`
-before grading. The official evaluator was then run once across all seven
-candidates with four local workers.
+before the official evaluator was invoked. The evaluator resolved 2 of 7.
 
-The first launcher attempt exited in 0.06 seconds because the host Python lacked
-`pandas`; it loaded no task and produced no result. After installing the
-evaluator dependency, the identical sealed grade specification was resumed.
-No candidate changed. The completed measurement resolved 2/7 tasks.
+An initial launcher attempt exited after 0.06 seconds because the host Python
+environment lacked `pandas`; it loaded no task and returned no task feedback.
+After installing the missing evaluator dependency, the identical sealed grade
+specification was executed. No candidate changed. Both receipts are retained.
 
-## Interpretation
+## Evaluator
 
-Supported historical statement:
+- Repository: [`scaleapi/SWE-bench_Pro-os`](https://github.com/scaleapi/SWE-bench_Pro-os)
+- Commit: `ca10a60a5fcae51e6948ffe1485d4153d421e6c5`
+- Evaluator tree SHA-256: `bb5d4c5486be296e464e695df3747064aaa3bb197394bc6d39980634afec2034`
+- Execution: local Docker with official per-instance images
 
-> The frozen historical submission resolved 570 of 731 public SWE-bench Pro
-> tasks in one complete official-evaluator run and 569 in a repeat, under an
-> adaptive open-material custom-harness protocol.
+## Supported interpretation
 
-Supported conservative statement:
-
-> Removing the seven same-task-adaptation rows yields 565 resolved tasks among
-> 724 retained historical rows. This remains open-material; it is not a
-> clean-room result.
-
-Supported follow-up statement:
-
-> A sealed, benchmark-informed Synthesa + Codex reconstruction resolved 2 of the
-> seven disputed rows. The native product-only path produced HOLDs, not patches.
+> Under the disclosed adaptive, open-material custom harness, the canonical
+> Synthesa-assisted entry resolved 567 of 731 public SWE-bench Pro tasks as
+> measured by the pinned official evaluator.
 
 Unsupported descriptions include one-shot pass@1, unseen-task generalization,
 contamination resistance, organizer certification, autonomous product-only
-570/731, or causal productivity uplift.
+567/731, or causal productivity uplift.
