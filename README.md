@@ -57,9 +57,3 @@ Evaluator: [`scaleapi/SWE-bench_Pro-os`](https://github.com/scaleapi/SWE-bench_P
 at commit `ca10a60a5fcae51e6948ffe1485d4153d421e6c5`, executed locally with the
 official per-instance Docker images.
 
-## Claim boundary
-
-This evidence demonstrates a measured outcome for this disclosed workflow. It
-does not by itself establish autonomous product-only patch generation, causal
-productivity uplift, human-versus-AI superiority, cost savings, or
-generalization to unseen tasks. Those require separate controlled studies.
