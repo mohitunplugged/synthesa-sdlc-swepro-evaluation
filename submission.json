@@ -40,8 +40,7 @@
   "protocol": {
     "leaderboard_comparable_pass_at_1": false,
     "organizer_certification_claimed": false,
-    "clean_room_claimed": false,
-    "public_material_available": true,
+       "public_material_available": true,
     "public_temporal_repository_evidence": {
       "content_matched_use_rows": 371,
       "lineage_only_rows": 18,
