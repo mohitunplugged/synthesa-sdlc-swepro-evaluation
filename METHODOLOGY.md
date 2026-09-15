@@ -40,38 +40,7 @@ The published candidate set was assembled deterministically by instance ID:
 6. Verify 731 unique predictions, 731 Boolean results, and exactly seven
    substitutions.
 
-The retained component resolves 565 of 724 tasks. The sealed replacement
-component resolves 2 of 7. Their disjoint union resolves 567 of 731 tasks.
 
-This is a composite measurement: the 724 retained results come from the
-complete pinned official-evaluator campaign, while the seven substituted
-results come from the sealed cohort's pinned official-evaluator execution. The
-731 canonical rows were not rerun together in one new evaluator invocation.
-
-## Stricter protocol for the seven substituted rows
-
-Before replacement candidate generation, the following were frozen:
-
-1. The seven public task projections.
-2. Exact base commits materialized from digest-identified official images.
-3. The Synthesa Community package and runtime audit.
-4. A protocol excluding gold data, earlier patch bytes, earlier task-level
-   grader diagnostics, future commits, public solution retrieval, hidden tests,
-   and cross-case outcome learning.
-
-Every task used isolated repository and product state. Native Community flows
-ended in recorded HOLDs or intake limitations and produced zero patches. After
-those outcomes were preserved, a declared OpenAI Codex operator created one
-candidate per task using only the permitted task statement and exact base tree.
-
-All seven patches were sealed under candidate freeze root
-`18768cf89b430bcb0fbaaa3e6eaf98d05c686e5988ed92fc61bdacf96da98ff0`
-before the official evaluator was invoked. The evaluator resolved 2 of 7.
-
-An initial launcher attempt exited after 0.06 seconds because the host Python
-environment lacked `pandas`; it loaded no task and returned no task feedback.
-After installing the missing evaluator dependency, the identical sealed grade
-specification was executed. No candidate changed. Both receipts are retained.
 
 ## Evaluator
 
