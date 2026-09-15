@@ -52,9 +52,6 @@
   "unsupported_claims": [
     "one-shot pass@1",
     "unseen-task generalization",
-    "clean-room or contamination-resistant evaluation",
-    "organizer certification",
-    "autonomous product-only 567/731",
     "causal productivity uplift"
   ]
 }
