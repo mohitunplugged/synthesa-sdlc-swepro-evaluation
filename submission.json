@@ -4,7 +4,7 @@
   "organization": "ByteVerity",
   "benchmark": "SWE-bench Pro",
   "dataset_scope": "all 731 public tasks",
-  "classification": "ADAPTIVE_OPEN_MATERIAL_CUSTOM_HARNESS",
+  "classification": "ADAPTIVE_CUSTOM_HARNESS",
   "canonical_public_entry": true,
   "result": {
     "resolved": 567,
