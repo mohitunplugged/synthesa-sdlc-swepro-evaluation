@@ -1,100 +1,81 @@
 # Evaluation methodology
 
-## Objective
+## Historical 731-task campaign
 
-Measure a complete Synthesa SDLC custom-harness campaign against the public
-SWE-bench Pro task set using the official evaluator, while retaining the final
-predictions, evaluator identity, results, and row-level provenance needed for
-independent review.
+The historical campaign processed every public SWE-bench Pro task and froze one
+non-empty patch per task. The frozen prediction bytes were measured twice with
+the official evaluator: 570/731 and 569/731.
 
-## System boundary
+It was an adaptive, open-material custom-harness evaluation:
 
-Synthesa SDLC supplied the patch-production and campaign-control layer. Its
-workflow represents unresolved requirements, failed checks, or missing evidence
-as residual work and can route that work to deterministic mechanisms, a human,
-or an external orchestrator. This campaign used the deterministic/model-free
-path; no LLM chat trajectories are claimed.
+- Public task materials were used.
+- Public repository history or public tests were available for 389 rows.
+- Local evaluator outcomes were available during parts of candidate production.
+- Seven final selections followed an earlier, byte-different failed candidate
+  for that same task.
+- The execution partitions named development, validation, and holdout were
+  campaign partitions; they were not private or unseen benchmark partitions.
 
-The official SWE-bench Pro evaluator remained a separate measurement layer. The
-final prediction set was executed locally in the official per-instance Docker
-images using evaluator commit
-`ca10a60a5fcae51e6948ffe1485d4153d421e6c5`.
+The row-level reconstruction accounts for all 731 prediction rows. Exact
+acquisition traces survive for 713; 18 retain lineage but no exact attempt
+receipt. These facts make the historical evaluator outcome reproducible, but do
+not make it a clean-room or leaderboard-comparable pass@1 result.
 
-## Campaign protocol
+The product is architecturally AI-optional. This evidence does not establish
+that every historical patch was generated without AI, so no model-free patch
+generation claim is made here.
 
-1. The campaign operated on all 731 public SWE-bench Pro tasks.
-2. Candidate patches came from archived campaign work, current deterministic
-   mechanisms, residual/manual construction, and explicitly disclosed public
-   repository history or tests.
-3. Candidate construction was adaptive. Local evaluator results were available
-   during the campaign; seven final task rows followed a failed, byte-different
-   candidate for the same task.
-4. One non-empty final patch per task was assembled and frozen.
-5. The frozen 731-patch file was evaluated in three disjoint execution
-   partitions and merged into `eval_results.json`.
-6. A second complete evaluation used the identical frozen prediction bytes.
+## Seven-row confirmation
 
-The partition names `development`, `validation`, and `holdout` describe campaign
-execution partitions. They do not turn this public-set campaign into an unseen
-or private evaluation.
+The follow-up cohort was selected post hoc because these were the seven rows
+with a prior same-task failure before historical final selection. It was not an
+unseen sample.
 
-## Results
+Before candidate generation, the experiment froze:
 
-| Partition | Resolved | Tasks | Rate |
-| --- | ---: | ---: | ---: |
-| Development | 102 | 149 | 68.46% |
-| Validation | 114 | 146 | 78.08% |
-| Holdout execution partition | 354 | 436 | 81.19% |
-| **Complete run** | **570** | **731** | **77.98%** |
+1. The seven public task projections.
+2. Exact base commits materialized from digest-identified official images.
+3. The Synthesa Community package and its runtime audit.
+4. A protocol forbidding gold data, historical patch bytes, historical
+   task-level grader diagnostics, future commits, public solution retrieval,
+   hidden tests, and cross-task outcome learning.
 
-The repeat resolved 569/731 tasks. The one-result difference occurred in the
-holdout execution partition.
+Each task used an isolated repository and product state. The native product path
+ended in recorded HOLDs and produced zero patches. After preserving those
+outcomes, a declared OpenAI Codex operator implemented one candidate per task
+using only the frozen task statement and exact base tree. This is reported as a
+benchmark-informed Synthesa-assisted workflow.
 
-## Provenance reconstruction
+All seven final patches and the combined prediction file were sealed under
+candidate freeze root
+`18768cf89b430bcb0fbaaa3e6eaf98d05c686e5988ed92fc61bdacf96da98ff0`
+before grading. The official evaluator was then run once across all seven
+candidates with four local workers.
 
-The row-level ledger accounts for all 731 frozen prediction patches:
-
-| Evidence class | Rows |
-| --- | ---: |
-| Archive-backed legacy trace | 148 |
-| Current-campaign mechanism trace | 106 |
-| Current-campaign residual/manual trace | 88 |
-| Public-temporal repository trace | 371 |
-| Public-temporal lineage with overwritten attempt receipt | 18 |
-
-There are no wholly unaccounted rows. The last 18 rows retain a known pre-freeze
-snapshot-batch origin but not an exact surviving attempt receipt, so they are
-reported as lineage-only rather than content-matched acquisition traces.
-
-Public repository history or public tests were used for 389 rows. That use is
-part of the declared protocol, not described as held-out synthesis.
-
-## Direct-answer comparison
-
-A separate exact-answer comparison was produced after the final prediction
-bytes had already been frozen. It identified 44 submitted patches equal to the
-upstream production diff. The comparison was marked `GOLD_AIDED`, was excluded
-from candidate eligibility, and did not produce or replace the frozen
-predictions. Exact equality is retained as comparison evidence; it is not used
-alone to infer how a patch was acquired.
+The first launcher attempt exited in 0.06 seconds because the host Python lacked
+`pandas`; it loaded no task and produced no result. After installing the
+evaluator dependency, the identical sealed grade specification was resumed.
+No candidate changed. The completed measurement resolved 2/7 tasks.
 
 ## Interpretation
 
-This package supports the claim:
+Supported historical statement:
 
-> Synthesa SDLC resolved 570 of 731 SWE-bench Pro public tasks in a complete
-> local run of the pinned official evaluator, with 569 resolved in a repeat of
-> the same frozen predictions, under an adaptive open-material custom-harness
-> protocol.
+> The frozen historical submission resolved 570 of 731 public SWE-bench Pro
+> tasks in one complete official-evaluator run and 569 in a repeat, under an
+> adaptive open-material custom-harness protocol.
 
-It does not support describing the number as one-shot pass@1, clean-room,
-unseen-task, contamination-resistant, private-set, or organizer-certified.
+Supported conservative statement:
 
-## Known limitations
+> Removing the seven same-task-adaptation rows yields 565 resolved tasks among
+> 724 retained historical rows. This remains open-material; it is not a
+> clean-room result.
 
-- Seven tasks contain same-task adaptation after a prior candidate failure.
-- Public-temporal material was available for 389 rows.
-- Eighteen rows have lineage evidence but no surviving exact attempt receipt.
-- The repeat varied by one task.
-- The study does not isolate causal uplift against an otherwise identical human
-  or AI baseline.
+Supported follow-up statement:
+
+> A sealed, benchmark-informed Synthesa + Codex reconstruction resolved 2 of the
+> seven disputed rows. The native product-only path produced HOLDs, not patches.
+
+Unsupported descriptions include one-shot pass@1, unseen-task generalization,
+contamination resistance, organizer certification, autonomous product-only
+570/731, or causal productivity uplift.

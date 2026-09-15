@@ -1,0 +1,38 @@
+{
+  "checks": {
+    "binary_matches_pin": true,
+    "binary_sha256": "c88595af36c481a930b1c986f04bbbe1d0c72624a1cfe04062f663d485e4f764",
+    "binary_task_or_base_hits": [],
+    "compiled_forbidden_dirs": [],
+    "compiled_go_files": 306,
+    "compiled_go_task_or_base_hits": [],
+    "forbidden_runtime_imports": [],
+    "runtime_files": [
+      "runtime/swepro_synthesa/__init__.py",
+      "runtime/swepro_synthesa/backend.py",
+      "runtime/swepro_synthesa/causal_cli.py",
+      "runtime/swepro_synthesa/materialize.py",
+      "runtime/swepro_synthesa/models.py",
+      "runtime/swepro_synthesa/native_bridge.py",
+      "runtime/swepro_synthesa/native_task_cli.py",
+      "runtime/swepro_synthesa/prequential.py",
+      "runtime/swepro_synthesa/profile.py",
+      "runtime/swepro_synthesa/requirements_bridge.py",
+      "runtime/swepro_synthesa/util.py"
+    ],
+    "runtime_task_or_base_hits": [],
+    "semaql_matches_pin": true,
+    "source_clean": true,
+    "source_commit": "83954950dda2ed4032fdc2e975b309b4a3c70429",
+    "source_commit_matches": true,
+    "source_tree": "b7e22187d9c86c379b62f9f33a39f16c2ca4b80d",
+    "source_tree_matches": true
+  },
+  "limits": [
+    "This proves absence of exact seven-task IDs and base commits in the frozen runtime and compiled product closure.",
+    "It does not claim the public benchmark or its task patterns were unseen to product developers.",
+    "Generic capabilities learned by dogfooding remain disclosed as benchmark-informed product history."
+  ],
+  "production_eligible": true,
+  "schema": "swepro.seven_confirmation_runtime_audit.v1"
+}

@@ -1,0 +1,52 @@
+diff --git a/internal/config/authentication.go b/internal/config/authentication.go
+index db156442cfa3797850e11e663b7ab7cdc3426610..a8b0ff2ff80d14f64af8e94a27930077a3dd5d05 100644
+--- a/internal/config/authentication.go
++++ b/internal/config/authentication.go
+@@ -402,7 +402,20 @@ func (a AuthenticationMethodOIDCConfig) info() AuthenticationMethodInfo {
+ 	return info
+ }
+ 
+-func (a AuthenticationMethodOIDCConfig) validate() error { return nil }
++func (a AuthenticationMethodOIDCConfig) validate() error {
++	providers := make([]string, 0, len(a.Providers))
++	for provider := range a.Providers {
++		providers = append(providers, provider)
++	}
++	slices.Sort(providers)
++	for _, provider := range providers {
++		cfg := a.Providers[provider]
++		if err := validateAuthenticationProvider(provider, cfg.ClientID, cfg.ClientSecret, cfg.RedirectAddress); err != nil {
++			return err
++		}
++	}
++	return nil
++}
+ 
+ // AuthenticationOIDCProvider configures provider credentials
+ type AuthenticationMethodOIDCProvider struct {
+@@ -484,8 +497,24 @@ func (a AuthenticationMethodGithubConfig) info() AuthenticationMethodInfo {
+ func (a AuthenticationMethodGithubConfig) validate() error {
+ 	// ensure scopes contain read:org if allowed organizations is not empty
+ 	if len(a.AllowedOrganizations) > 0 && !slices.Contains(a.Scopes, "read:org") {
+-		return fmt.Errorf("scopes must contain read:org when allowed_organizations is not empty")
++		return fmt.Errorf(`provider "github": field "scopes": must contain read:org when allowed_organizations is not empty`)
+ 	}
+ 
++	return validateAuthenticationProvider("github", a.ClientId, a.ClientSecret, a.RedirectAddress)
++}
++
++func validateAuthenticationProvider(provider, clientID, clientSecret, redirectAddress string) error {
++	for _, field := range []struct {
++		name  string
++		value string
++	}{
++		{name: "client_id", value: clientID},
++		{name: "client_secret", value: clientSecret},
++		{name: "redirect_address", value: redirectAddress},
++	} {
++		if strings.TrimSpace(field.value) == "" {
++			return fmt.Errorf(`provider %q: field %q: non-empty value is required`, provider, field.name)
++		}
++	}
+ 	return nil
+ }

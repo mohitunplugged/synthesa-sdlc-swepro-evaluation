@@ -1,0 +1,20 @@
+{
+  "schema": "swepro.seven_candidate_generation_disclosure.v1",
+  "claim_owner": "combined Synthesa SDLC Community package plus declared OpenAI Codex operator",
+  "product_only_result": {
+    "patch_ready_count": 0,
+    "nodebb_hold": "AMBIGUOUS_CHANGE_SCOPE followed by TEACH_STRATEGY_UNAVAILABLE",
+    "element_holds": "ADAPTER_REFUSED before native execution",
+    "flipt_holds": "AMBIGUOUS_LANGUAGE_SELECTION before native execution"
+  },
+  "assisted_candidate_policy": "After preserving the native holds, the declared operator implemented one fresh candidate per row using only the frozen public task and its isolated exact-base tree.",
+  "prohibited_material_not_used": [
+    "historical candidate or selected patch bytes",
+    "historical per-task grader diagnostics",
+    "gold patches or answer-bearing fields",
+    "future commits or public solution retrieval",
+    "hidden tests or official grader feedback"
+  ],
+  "measurement_policy": "All seven candidate patches are frozen before one official evaluator invocation. No result may be used to revise a candidate.",
+  "interpretation": "This rerun measures an informed Synthesa-assisted human/AI repair workflow, not autonomous product-only patch generation and not unseen-task leaderboard pass@1."
+}

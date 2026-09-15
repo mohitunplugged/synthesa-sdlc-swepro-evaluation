@@ -1,0 +1,95 @@
+{
+  "candidate_count": 7,
+  "cases": [
+    {
+      "base_commit": "a3e1a666b876e0b3ccbb5284dd826c8c90c113b4",
+      "changed_files": [
+        "src/plugins/install.js"
+      ],
+      "instance_id": "instance_NodeBB__NodeBB-76c6e30282906ac664f2c9278fc90999b27b1f48-vd59a5728dfc977f44533186ace531248c2917516",
+      "patch_bytes": 1100,
+      "patch_path": "candidates/01.patch",
+      "patch_sha256": "72da76fd5ef4a4329a648c0bd5e1bbbe8bbf3d8f30e33fbc7d296bf1b0c600b5",
+      "sequence": 1
+    },
+    {
+      "base_commit": "8166306e0f8951a9554bf1437f7ef6eef54a3267",
+      "changed_files": [
+        "res/css/views/rooms/_RoomHeader.pcss",
+        "src/components/views/rooms/RoomHeader.tsx"
+      ],
+      "instance_id": "instance_element-hq__element-web-33299af5c9b7a7ec5a9c31d578d4ec5b18088fb7-vnan",
+      "patch_bytes": 3087,
+      "patch_path": "candidates/02.patch",
+      "patch_sha256": "b6151a766f0be9ba5c18ecc151f294cfef63c84869ffc90b71bd9f0756a5aa85",
+      "sequence": 2
+    },
+    {
+      "base_commit": "c2ae6c279b8c80ea5bd58f3354e5949a9fa5ee41",
+      "changed_files": [
+        "src/utils/arrays.ts"
+      ],
+      "instance_id": "instance_element-hq__element-web-b007ea81b2ccd001b00f332bee65070aa7fc00f9-vnan",
+      "patch_bytes": 1580,
+      "patch_path": "candidates/03.patch",
+      "patch_sha256": "3e475a3afd3aac3afa74b320d092715b1ce4f006d2d1290b64bf7acbe5e78eff",
+      "sequence": 3
+    },
+    {
+      "base_commit": "490cc12996575ec353e9755ca1c21e222a4e5191",
+      "changed_files": [
+        "cmd/flipt/export.go",
+        "internal/ext/exporter.go"
+      ],
+      "instance_id": "instance_flipt-io__flipt-b3cd920bbb25e01fdb2dab66a5a913363bc62f6c",
+      "patch_bytes": 11667,
+      "patch_path": "candidates/04.patch",
+      "patch_sha256": "63637e51d3ca0f08fc7c5a0ff71c32210d6c2507ca31805eebfe0f112bdc08a1",
+      "sequence": 4
+    },
+    {
+      "base_commit": "dbe263961b187e1c5d7fe34c65b000985a2da5a0",
+      "changed_files": [
+        "internal/config/authentication.go"
+      ],
+      "instance_id": "instance_flipt-io__flipt-c1fd7a81ef9f23e742501bfb26d914eb683262aa",
+      "patch_bytes": 2142,
+      "patch_path": "candidates/05.patch",
+      "patch_sha256": "83cff753957825bc7c1bb25cb47ee93440ba85df851c94f6e13e7d0641dfdc36",
+      "sequence": 5
+    },
+    {
+      "base_commit": "29d3f9db40c83434d0e3cc082af8baec64c391a9",
+      "changed_files": [
+        "cmd/flipt/validate.go",
+        "internal/cue/validate.go",
+        "internal/storage/fs/snapshot.go"
+      ],
+      "instance_id": "instance_flipt-io__flipt-c8d71ad7ea98d97546f01cce4ccb451dbcf37d3b",
+      "patch_bytes": 11223,
+      "patch_path": "candidates/06.patch",
+      "patch_sha256": "fdd0da4e63967213ae952fa407d012adab55eb8be81f2942737431dd34ecb94d",
+      "sequence": 6
+    },
+    {
+      "base_commit": "0eaf98f050d86247bfe9bd7e41178865cb585060",
+      "changed_files": [
+        "internal/cache/cache.go",
+        "internal/cache/metrics.go",
+        "internal/cmd/grpc.go",
+        "internal/cmd/http.go",
+        "internal/server/middleware/grpc/middleware.go",
+        "internal/storage/cache/cache.go"
+      ],
+      "instance_id": "instance_flipt-io__flipt-e2bd19dafa7166c96b082fb2a59eb54b4be0d778",
+      "patch_bytes": 13505,
+      "patch_path": "candidates/07.patch",
+      "patch_sha256": "6464e3ab369e555ab78eee03c5eba576f663de68d951d5907399dd07d5a641a7",
+      "sequence": 7
+    }
+  ],
+  "predictions_path": "candidate-predictions.json",
+  "predictions_sha256": "a760cdbe6f28ed61c72dacbbd095286e824bbd2c21267058c9cde590e12c2175",
+  "prefix": "synthesa-seven-informed-20260915",
+  "schema": "swepro.seven_assisted_candidate_manifest.v1"
+}

@@ -1,0 +1,102 @@
+{
+  "allowed_generation_inputs": [
+    "the frozen seven-row public task projection",
+    "the exact base tree materialized from the locally present digest-identified official image",
+    "the frozen qualified product package and its ordinary generic capabilities",
+    "the current product HOLD/questionnaire and operator-authored answer grounded in the public task or exact base"
+  ],
+  "backend_ref": "/home/mohitm/swepro-seven-informed-reproduction-20260915.8Hat6FkY/config/backend.json",
+  "campaign": "swepro-seven-fresh-regeneration-20260915",
+  "claim_class": "BENCHMARK_INFORMED_SYNTHESA_ASSISTED_REPAIR_AGENT_CONFIRMATION",
+  "created_at": "2026-09-15T11:11:05.345205+00:00",
+  "execution": {
+    "accept_suggestions": false,
+    "candidate_policy": "freeze at most one newly generated final patch per task; retain exhausted HOLD as a zero-submission row",
+    "case_isolation": "one one-row campaign, repository, product state, and registry per task",
+    "certification_policy": "record PATCH_READY/HOLD separately from the official benchmark grade",
+    "explicit_answers_only": true,
+    "grading_barrier": "do not invoke the official evaluator until all seven candidate dispositions and patch hashes are frozen",
+    "official_measurements": 1,
+    "residual_budget_per_case": 16
+  },
+  "forbidden_generation_inputs": [
+    "gold patch or answer-bearing dataset fields",
+    "hidden tests or official grader feedback",
+    "future repository commits or public solution retrieval",
+    "prior same-task candidate patches, edit bytes, run artifacts, or grader diagnostics",
+    "task-ID keyed routing or task-to-task outcome learning"
+  ],
+  "leaderboard_comparable": false,
+  "pins_ref": "/home/mohitm/swepro-seven-informed-reproduction-20260915.8Hat6FkY/config/pins.json",
+  "purpose": "Resolve the seven-row provenance contention by generating new candidates from allowed inputs; do not replay or inspect historical candidate bytes.",
+  "schema": "swepro.seven_case_confirmation_protocol.v1",
+  "selection_disclosure": {
+    "cohort_selected_post_hoc": true,
+    "no_claim_of_fresh_generalization": true,
+    "operator_has_not_inspected_historical_grader_diagnostics": true,
+    "operator_has_not_inspected_historical_patch_bytes": true,
+    "operator_knows_historical_binary_outcomes": true,
+    "reason": "These are exactly the seven historical rows whose final selection followed an earlier failed candidate.",
+    "same_benchmark_residuals_may_have_informed_generic_product_capabilities": true,
+    "unseen_to_product_developers": false
+  },
+  "system_identity": {
+    "binary_sha256": "c88595af36c481a930b1c986f04bbbe1d0c72624a1cfe04062f663d485e4f764",
+    "operator": "OpenAI Codex (GPT-5), responding only to current product residuals from allowed evidence",
+    "product": "Synthesa SDLC Community continuation package",
+    "product_version": "swepro-clean-83954950dda2",
+    "score_owner": "combined Synthesa + declared Codex operator",
+    "source_commit": "83954950dda2ed4032fdc2e975b309b4a3c70429"
+  },
+  "tasks": [
+    {
+      "base_commit": "a3e1a666b876e0b3ccbb5284dd826c8c90c113b4",
+      "instance_id": "instance_NodeBB__NodeBB-76c6e30282906ac664f2c9278fc90999b27b1f48-vd59a5728dfc977f44533186ace531248c2917516",
+      "language": "js",
+      "repo": "NodeBB/NodeBB",
+      "sequence": 1
+    },
+    {
+      "base_commit": "8166306e0f8951a9554bf1437f7ef6eef54a3267",
+      "instance_id": "instance_element-hq__element-web-33299af5c9b7a7ec5a9c31d578d4ec5b18088fb7-vnan",
+      "language": "js",
+      "repo": "element-hq/element-web",
+      "sequence": 2
+    },
+    {
+      "base_commit": "c2ae6c279b8c80ea5bd58f3354e5949a9fa5ee41",
+      "instance_id": "instance_element-hq__element-web-b007ea81b2ccd001b00f332bee65070aa7fc00f9-vnan",
+      "language": "js",
+      "repo": "element-hq/element-web",
+      "sequence": 3
+    },
+    {
+      "base_commit": "490cc12996575ec353e9755ca1c21e222a4e5191",
+      "instance_id": "instance_flipt-io__flipt-b3cd920bbb25e01fdb2dab66a5a913363bc62f6c",
+      "language": "go",
+      "repo": "flipt-io/flipt",
+      "sequence": 4
+    },
+    {
+      "base_commit": "dbe263961b187e1c5d7fe34c65b000985a2da5a0",
+      "instance_id": "instance_flipt-io__flipt-c1fd7a81ef9f23e742501bfb26d914eb683262aa",
+      "language": "go",
+      "repo": "flipt-io/flipt",
+      "sequence": 5
+    },
+    {
+      "base_commit": "29d3f9db40c83434d0e3cc082af8baec64c391a9",
+      "instance_id": "instance_flipt-io__flipt-c8d71ad7ea98d97546f01cce4ccb451dbcf37d3b",
+      "language": "go",
+      "repo": "flipt-io/flipt",
+      "sequence": 6
+    },
+    {
+      "base_commit": "0eaf98f050d86247bfe9bd7e41178865cb585060",
+      "instance_id": "instance_flipt-io__flipt-e2bd19dafa7166c96b082fb2a59eb54b4be0d778",
+      "language": "go",
+      "repo": "flipt-io/flipt",
+      "sequence": 7
+    }
+  ]
+}

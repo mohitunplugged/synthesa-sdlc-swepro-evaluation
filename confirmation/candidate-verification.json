@@ -1,0 +1,56 @@
+{
+  "schema": "swepro.seven_candidate_verification.v1",
+  "official_grader_invocations": 0,
+  "cross_case_feedback_used": false,
+  "cases": [
+    {
+      "sequence": 1,
+      "checks": [
+        "eslint src/plugins/install.js: PASS",
+        "NodeBB plugin configuration guard tests with ephemeral Redis: 2 PASS"
+      ]
+    },
+    {
+      "sequence": 2,
+      "checks": [
+        "yarn lint:types: PASS",
+        "base RoomHeader suite: 1 PASS, 2 FAIL; one stored snapshot reflects the pre-task UI and the old room fixture does not initialize DMRoomMap before newly required avatar rendering"
+      ],
+      "residual_risk": "The official task tests must supply the task-era snapshot/fixture changes; no hidden tests or future repository state were inspected."
+    },
+    {
+      "sequence": 3,
+      "checks": [
+        "base arrays Jest suite: 29 PASS"
+      ]
+    },
+    {
+      "sequence": 4,
+      "checks": [
+        "go test ./internal/ext ./cmd/flipt: PASS"
+      ]
+    },
+    {
+      "sequence": 5,
+      "checks": [
+        "go test ./internal/config -run '^$': package compile PASS",
+        "full base package tests: only the two assertions for the superseded non-provider-qualified GitHub scopes error text fail"
+      ]
+    },
+    {
+      "sequence": 6,
+      "checks": [
+        "go test ./internal/storage/fs ./cmd/flipt: PASS",
+        "manual public-contract probe: missing segment and variant are both reported with exact message plus file, line, and column"
+      ],
+      "compatibility_note": "The existing internal/cue tests use the old two-return Validate signature; the public task explicitly replaces it with a single error return."
+    },
+    {
+      "sequence": 7,
+      "checks": [
+        "go test ./internal/cache ./internal/storage/cache ./internal/cmd: PASS"
+      ],
+      "compatibility_note": "The old middleware tests assert GetFlag interceptor caching and mutation invalidation; the public task explicitly moves GetFlag caching to storage and requires TTL-only expiry."
+    }
+  ]
+}

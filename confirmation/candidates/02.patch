@@ -1,0 +1,74 @@
+diff --git a/res/css/views/rooms/_RoomHeader.pcss b/res/css/views/rooms/_RoomHeader.pcss
+index 8fa887c5647e3ba149141de9af787d665e66de34..9ed5f19b78e49ba31199f27b8f9594b0cc570edf 100644
+--- a/res/css/views/rooms/_RoomHeader.pcss
++++ b/res/css/views/rooms/_RoomHeader.pcss
+@@ -34,6 +34,12 @@ limitations under the License.
+     margin: 0 20px 0 16px;
+     padding-top: 6px;
+     border-bottom: 1px solid $separator;
++    cursor: pointer;
++    gap: 8px;
++}
++
++.mx_RoomHeader_text {
++    min-width: 0;
+ }
+ 
+ .mx_RoomHeader_name {
+@@ -51,3 +57,11 @@ limitations under the License.
+     user-select: none;
+     cursor: pointer;
+ }
++
++.mx_RoomHeader_topic {
++    color: $secondary-content;
++    font: var(--cpd-font-body-sm-regular);
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
+diff --git a/src/components/views/rooms/RoomHeader.tsx b/src/components/views/rooms/RoomHeader.tsx
+index aae3c1d0776de4c90eca9532d55e949b2c08b033..1c5a75fd77d389657702c31ea75e34ed26804b2a 100644
+--- a/src/components/views/rooms/RoomHeader.tsx
++++ b/src/components/views/rooms/RoomHeader.tsx
+@@ -14,20 +14,36 @@ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+ 
+-import React from "react";
++import React, { useCallback } from "react";
+ 
+ import type { Room } from "matrix-js-sdk/src/models/room";
+ import { IOOBData } from "../../../stores/ThreepidInviteStore";
+ import { useRoomName } from "../../../hooks/useRoomName";
++import { useTopic } from "../../../hooks/room/useTopic";
++import RightPanelStore from "../../../stores/right-panel/RightPanelStore";
++import { RightPanelPhases } from "../../../stores/right-panel/RightPanelStorePhases";
++import RoomAvatar from "../avatars/RoomAvatar";
++
++function RoomTopicPreview({ room }: { room: Room }): JSX.Element | null {
++    const topic = useTopic(room);
++    return topic?.text ? <div className="mx_RoomHeader_topic" dir="auto">{topic.text}</div> : null;
++}
+ 
+ export default function RoomHeader({ room, oobData }: { room?: Room; oobData?: IOOBData }): JSX.Element {
+     const roomName = useRoomName(room, oobData);
++    const onClick = useCallback(() => {
++        RightPanelStore.instance.setCard({ phase: RightPanelPhases.RoomSummary }, true, room?.roomId);
++    }, [room]);
+ 
+     return (
+-        <header className="mx_RoomHeader light-panel">
++        <header className="mx_RoomHeader light-panel" onClick={onClick}>
+             <div className="mx_RoomHeader_wrapper">
+-                <div className="mx_RoomHeader_name" dir="auto" title={roomName} role="heading" aria-level={1}>
+-                    {roomName}
++                <RoomAvatar room={room} oobData={oobData ?? {}} width={32} height={32} />
++                <div className="mx_RoomHeader_text">
++                    <div className="mx_RoomHeader_name" dir="auto" title={roomName} role="heading" aria-level={1}>
++                        {roomName}
++                    </div>
++                    {room && <RoomTopicPreview room={room} />}
+                 </div>
+             </div>
+         </header>

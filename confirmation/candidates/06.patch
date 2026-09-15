@@ -1,0 +1,359 @@
+diff --git a/cmd/flipt/validate.go b/cmd/flipt/validate.go
+index e6d28152f05fe63abdf8189ab5bd527cb307647a..a2ba04f1c2d7f159d8bca8d48ca15086170d21fb 100644
+--- a/cmd/flipt/validate.go
++++ b/cmd/flipt/validate.go
+@@ -2,7 +2,6 @@ package main
+ 
+ import (
+ 	"encoding/json"
+-	"errors"
+ 	"fmt"
+ 	"os"
+ 
+@@ -55,13 +54,20 @@ func (v *validateCommand) run(cmd *cobra.Command, args []string) {
+ 			os.Exit(1)
+ 		}
+ 
+-		res, err := validator.Validate(arg, f)
+-		if err != nil && !errors.Is(err, cue.ErrValidationFailed) {
++		err = validator.Validate(arg, f)
++		issues, validationFailed := cue.Unwrap(err)
++		if err != nil && !validationFailed {
+ 			fmt.Println(err)
+ 			os.Exit(1)
+ 		}
+ 
+-		if len(res.Errors) > 0 {
++		if len(issues) > 0 {
++			res := cue.Result{}
++			for _, issue := range issues {
++				if validationError, ok := issue.(cue.Error); ok {
++					res.Errors = append(res.Errors, validationError)
++				}
++			}
+ 			if v.format == jsonFormat {
+ 				if err := json.NewEncoder(os.Stdout).Encode(res); err != nil {
+ 					fmt.Println(err)
+@@ -73,7 +79,12 @@ func (v *validateCommand) run(cmd *cobra.Command, args []string) {
+ 
+ 			fmt.Println("Validation failed!")
+ 
+-			for _, e := range res.Errors {
++			for _, issue := range issues {
++				e, ok := issue.(cue.Error)
++				if !ok {
++					fmt.Printf("\n- Message  : %s\n", issue)
++					continue
++				}
+ 				fmt.Printf(
+ 					`
+ - Message  : %s
+diff --git a/internal/cue/validate.go b/internal/cue/validate.go
+index afa4f7b5799434906dc01d971e8e8a9db1816d50..26e1dd1a0eda73678dfe9444c53919be93fb3766 100644
+--- a/internal/cue/validate.go
++++ b/internal/cue/validate.go
+@@ -3,11 +3,14 @@ package cue
+ import (
+ 	_ "embed"
+ 	"errors"
++	"fmt"
+ 
+ 	"cuelang.org/go/cue"
+ 	"cuelang.org/go/cue/cuecontext"
+ 	cueerrors "cuelang.org/go/cue/errors"
+-	"cuelang.org/go/encoding/yaml"
++	cueyaml "cuelang.org/go/encoding/yaml"
++	"go.flipt.io/flipt/internal/ext"
++	"gopkg.in/yaml.v3"
+ )
+ 
+ var (
+@@ -16,22 +19,21 @@ var (
+ 	ErrValidationFailed = errors.New("validation failed")
+ )
+ 
+-// Location contains information about where an error has occurred during cue
+-// validation.
+ type Location struct {
+ 	File   string `json:"file,omitempty"`
+ 	Line   int    `json:"line"`
+ 	Column int    `json:"column"`
+ }
+ 
+-// Error is a collection of fields that represent positions in files where the user
+-// has made some kind of error.
+ type Error struct {
+ 	Message  string   `json:"message"`
+ 	Location Location `json:"location"`
+ }
+ 
+-// Result is a collection of errors that occurred during validation.
++func (e Error) Error() string {
++	return fmt.Sprintf("%s (%s %d:%d)", e.Message, e.Location.File, e.Location.Line, e.Location.Column)
++}
++
+ type Result struct {
+ 	Errors []Error `json:"errors"`
+ }
+@@ -47,51 +49,131 @@ func NewFeaturesValidator() (*FeaturesValidator, error) {
+ 	if v.Err() != nil {
+ 		return nil, v.Err()
+ 	}
++	return &FeaturesValidator{cue: cctx, v: v}, nil
++}
+ 
+-	return &FeaturesValidator{
+-		cue: cctx,
+-		v:   v,
+-	}, nil
++func Unwrap(err error) ([]error, bool) {
++	if err == nil {
++		return nil, false
++	}
++	multi, ok := err.(interface{ Unwrap() []error })
++	if !ok {
++		return nil, false
++	}
++	errs := multi.Unwrap()
++	return errs, len(errs) > 0
+ }
+ 
+-// Validate validates a YAML file against our cue definition of features.
+-func (v FeaturesValidator) Validate(file string, b []byte) (Result, error) {
+-	var result Result
++func mapValue(node *yaml.Node, key string) *yaml.Node {
++	if node == nil || node.Kind != yaml.MappingNode {
++		return nil
++	}
++	for i := 0; i+1 < len(node.Content); i += 2 {
++		if node.Content[i].Value == key {
++			return node.Content[i+1]
++		}
++	}
++	return nil
++}
+ 
+-	f, err := yaml.Extract("", b)
+-	if err != nil {
+-		return result, err
++func semanticErrors(file string, b []byte) []error {
++	var doc ext.Document
++	if err := yaml.Unmarshal(b, &doc); err != nil {
++		return nil
++	}
++	var root yaml.Node
++	if err := yaml.Unmarshal(b, &root); err != nil || len(root.Content) == 0 {
++		return nil
++	}
++	docNode := root.Content[0]
++	flagsNode := mapValue(docNode, "flags")
++	segments := make(map[string]struct{}, len(doc.Segments))
++	for _, segment := range doc.Segments {
++		segments[segment.Key] = struct{}{}
++	}
++	namespace := doc.Namespace
++	if namespace == "" {
++		namespace = "default"
++	}
++	var failures []error
++	for flagIndex, flag := range doc.Flags {
++		variants := make(map[string]struct{}, len(flag.Variants))
++		for _, variant := range flag.Variants {
++			variants[variant.Key] = struct{}{}
++		}
++		var flagNode *yaml.Node
++		if flagsNode != nil && flagsNode.Kind == yaml.SequenceNode && flagIndex < len(flagsNode.Content) {
++			flagNode = flagsNode.Content[flagIndex]
++		}
++		rulesNode := mapValue(flagNode, "rules")
++		for ruleIndex, rule := range flag.Rules {
++			var ruleNode *yaml.Node
++			if rulesNode != nil && rulesNode.Kind == yaml.SequenceNode && ruleIndex < len(rulesNode.Content) {
++				ruleNode = rulesNode.Content[ruleIndex]
++			}
++			add := func(message string, position *yaml.Node) {
++				location := Location{File: file}
++				if position != nil {
++					location.Line, location.Column = position.Line, position.Column
++				}
++				failures = append(failures, Error{Message: message, Location: location})
++			}
++			if rule.Segment != nil {
++				switch value := rule.Segment.IsSegment.(type) {
++				case ext.SegmentKey:
++					key := string(value)
++					if _, ok := segments[key]; !ok {
++						add(fmt.Sprintf("flag %s/%s rule %d references unknown segment %q", namespace, flag.Key, ruleIndex+1, key), mapValue(ruleNode, "segment"))
++					}
++				case *ext.Segments:
++					for _, key := range value.Keys {
++						if _, ok := segments[key]; !ok {
++							add(fmt.Sprintf("flag %s/%s rule %d references unknown segment %q", namespace, flag.Key, ruleIndex+1, key), mapValue(mapValue(ruleNode, "segment"), "keys"))
++						}
++					}
++				}
++			}
++			distributionsNode := mapValue(ruleNode, "distributions")
++			for distributionIndex, distribution := range rule.Distributions {
++				if _, ok := variants[distribution.VariantKey]; ok {
++					continue
++				}
++				var position *yaml.Node
++				if distributionsNode != nil && distributionsNode.Kind == yaml.SequenceNode && distributionIndex < len(distributionsNode.Content) {
++					position = mapValue(distributionsNode.Content[distributionIndex], "variant")
++				}
++				add(fmt.Sprintf("flag %s/%s rule %d references unknown variant %q", namespace, flag.Key, ruleIndex+1, distribution.VariantKey), position)
++			}
++		}
+ 	}
++	return failures
++}
+ 
++func (v FeaturesValidator) Validate(file string, b []byte) error {
++	f, err := cueyaml.Extract(file, b)
++	if err != nil {
++		return err
++	}
+ 	yv := v.cue.BuildFile(f)
+ 	if err := yv.Err(); err != nil {
+-		return Result{}, err
++		return err
+ 	}
+-
+-	err = v.v.
+-		Unify(yv).
+-		Validate(cue.All(), cue.Concrete(true))
+-
+-	for _, e := range cueerrors.Errors(err) {
+-		rerr := Error{
+-			Message: e.Error(),
+-			Location: Location{
+-				File: file,
+-			},
+-		}
+-
+-		if pos := cueerrors.Positions(e); len(pos) > 0 {
+-			p := pos[len(pos)-1]
+-			rerr.Location.Line = p.Line()
+-			rerr.Location.Column = p.Column()
++	err = v.v.Unify(yv).Validate(cue.All(), cue.Concrete(true))
++	var failures []error
++	for _, item := range cueerrors.Errors(err) {
++		failure := Error{Message: item.Error(), Location: Location{File: file}}
++		if positions := cueerrors.Positions(item); len(positions) > 0 {
++			position := positions[len(positions)-1]
++			failure.Location.Line = position.Line()
++			failure.Location.Column = position.Column()
+ 		}
+-
+-		result.Errors = append(result.Errors, rerr)
++		failures = append(failures, failure)
+ 	}
+-
+-	if len(result.Errors) > 0 {
+-		return result, ErrValidationFailed
++	if len(failures) == 0 {
++		failures = append(failures, semanticErrors(file, b)...)
+ 	}
+-
+-	return result, nil
++	if len(failures) == 0 {
++		return nil
++	}
++	return errors.Join(failures...)
+ }
+diff --git a/internal/storage/fs/snapshot.go b/internal/storage/fs/snapshot.go
+index 41ff2d401bad7e97c77a9a4b4fa1e1260b77ff1c..b4db0cb62440548053852a6813a1f05adb3f1d65 100644
+--- a/internal/storage/fs/snapshot.go
++++ b/internal/storage/fs/snapshot.go
+@@ -1,6 +1,7 @@
+ package fs
+ 
+ import (
++	"bytes"
+ 	"context"
+ 	"encoding/json"
+ 	"errors"
+@@ -27,7 +28,7 @@ const (
+ )
+ 
+ var (
+-	_                 storage.Store = (*storeSnapshot)(nil)
++	_                 storage.Store = (*StoreSnapshot)(nil)
+ 	ErrNotImplemented               = errors.New("not implemented")
+ )
+ 
+@@ -39,14 +40,16 @@ type FliptIndex struct {
+ 	Exclude []string `yaml:"exclude,omitempty"`
+ }
+ 
+-// storeSnapshot contains the structures necessary for serving
++// StoreSnapshot contains the structures necessary for serving
+ // flag state to a client.
+-type storeSnapshot struct {
++type StoreSnapshot struct {
+ 	ns        map[string]*namespace
+ 	evalDists map[string][]*storage.EvaluationDistribution
+ 	now       *timestamppb.Timestamp
+ }
+ 
++type storeSnapshot = StoreSnapshot
++
+ type namespace struct {
+ 	resource     *flipt.Namespace
+ 	flags        map[string]*flipt.Flag
+@@ -78,6 +81,11 @@ func newNamespace(key, name string, created *timestamppb.Timestamp) *namespace {
+ // directly from an implementation of fs.FS using the list state files
+ // function to source the relevant Flipt configuration files.
+ func snapshotFromFS(logger *zap.Logger, fs fs.FS) (*storeSnapshot, error) {
++	return SnapshotFromFS(logger, fs)
++}
++
++// SnapshotFromFS discovers and loads all state files from fs.
++func SnapshotFromFS(logger *zap.Logger, fs fs.FS) (*StoreSnapshot, error) {
+ 	files, err := listStateFiles(logger, fs)
+ 	if err != nil {
+ 		return nil, err
+@@ -85,15 +93,19 @@ func snapshotFromFS(logger *zap.Logger, fs fs.FS) (*storeSnapshot, error) {
+ 
+ 	logger.Debug("opening state files", zap.Strings("paths", files))
+ 
++	return SnapshotFromPaths(fs, files...)
++}
++
++// SnapshotFromPaths loads the explicitly named state files. Referential
++// integrity is validated while each decoded document is added to the snapshot.
++func SnapshotFromPaths(source fs.FS, paths ...string) (*StoreSnapshot, error) {
+ 	var rds []io.Reader
+-	for _, file := range files {
+-		fi, err := fs.Open(file)
++	for _, file := range paths {
++		contents, err := fs.ReadFile(source, file)
+ 		if err != nil {
+ 			return nil, err
+ 		}
+-
+-		defer fi.Close()
+-		rds = append(rds, fi)
++		rds = append(rds, bytes.NewReader(contents))
+ 	}
+ 
+ 	return snapshotFromReaders(rds...)
+@@ -332,7 +344,7 @@ func (ss *storeSnapshot) addDoc(doc *ext.Document) error {
+ 			for _, segmentKey := range segmentKeys {
+ 				segment := ns.segments[segmentKey]
+ 				if segment == nil {
+-					return errs.ErrNotFoundf("segment %q in rule %d", segmentKey, rank)
++					return fmt.Errorf("flag %s/%s rule %d references unknown segment %q", doc.Namespace, f.Key, rank, segmentKey)
+ 				}
+ 
+ 				evc := make([]storage.EvaluationConstraint, 0, len(segment.Constraints))
+@@ -363,7 +375,7 @@ func (ss *storeSnapshot) addDoc(doc *ext.Document) error {
+ 			for _, d := range r.Distributions {
+ 				variant, found := findByKey(d.VariantKey, flag.Variants...)
+ 				if !found {
+-					continue
++					return fmt.Errorf("flag %s/%s rule %d references unknown variant %q", doc.Namespace, f.Key, rank, d.VariantKey)
+ 				}
+ 
+ 				id := uuid.Must(uuid.NewV4()).String()

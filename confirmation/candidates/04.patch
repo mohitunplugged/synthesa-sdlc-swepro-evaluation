@@ -1,0 +1,390 @@
+diff --git a/cmd/flipt/export.go b/cmd/flipt/export.go
+index c477f4ea2b7433da9fefc5bcdb7a883a698ec01c..bebbd8bb91f84309e9af47b6ca2c6d837828a8dd 100644
+--- a/cmd/flipt/export.go
++++ b/cmd/flipt/export.go
+@@ -19,6 +19,7 @@ type exportCommand struct {
+ 	token         string
+ 	namespaces    string // comma delimited list of namespaces
+ 	allNamespaces bool
++	sortByKey     bool
+ }
+ 
+ func newExportCommand() *cobra.Command {
+@@ -72,6 +73,13 @@ func newExportCommand() *cobra.Command {
+ 		"export all namespaces. (mutually exclusive with --namespaces)",
+ 	)
+ 
++	cmd.Flags().BoolVar(
++		&export.sortByKey,
++		"sort-by-key",
++		false,
++		"sort exported namespaces, flags, segments, and variants by key",
++	)
++
+ 	cmd.Flags().StringVar(&providedConfigFile, "config", "", "path to config file")
+ 
+ 	cmd.MarkFlagsMutuallyExclusive("all-namespaces", "namespaces", "namespace")
+@@ -139,5 +147,5 @@ func (c *exportCommand) run(cmd *cobra.Command, _ []string) error {
+ }
+ 
+ func (c *exportCommand) export(ctx context.Context, enc ext.Encoding, dst io.Writer, lister ext.Lister) error {
+-	return ext.NewExporter(lister, c.namespaces, c.allNamespaces).Export(ctx, enc, dst)
++	return ext.NewExporter(lister, c.namespaces, c.allNamespaces, c.sortByKey).Export(ctx, enc, dst)
+ }
+diff --git a/internal/ext/exporter.go b/internal/ext/exporter.go
+index c6608c1e73b0fa25e18e4c3be3c9281f976672a8..83c9ac236e5ae7673d8690a6d4f21fe62b6d225a 100644
+--- a/internal/ext/exporter.go
++++ b/internal/ext/exporter.go
+@@ -5,6 +5,7 @@ import (
+ 	"encoding/json"
+ 	"fmt"
+ 	"io"
++	"slices"
+ 	"strings"
+ 
+ 	"github.com/blang/semver/v4"
+@@ -44,16 +45,19 @@ type Exporter struct {
+ 	batchSize     int32
+ 	namespaceKeys []string
+ 	allNamespaces bool
++	sortByKey     bool
+ }
+ 
+-func NewExporter(store Lister, namespaces string, allNamespaces bool) *Exporter {
++func NewExporter(store Lister, namespaces string, allNamespaces bool, sortByKey ...bool) *Exporter {
+ 	ns := strings.Split(namespaces, ",")
++	sortEnabled := len(sortByKey) > 0 && sortByKey[0]
+ 
+ 	return &Exporter{
+ 		store:         store,
+ 		batchSize:     defaultBatchSize,
+ 		namespaceKeys: ns,
+ 		allNamespaces: allNamespaces,
++		sortByKey:     sortEnabled,
+ 	}
+ }
+ 
+@@ -116,6 +120,11 @@ func (e *Exporter) Export(ctx context.Context, encoding Encoding, w io.Writer) e
+ 			})
+ 		}
+ 	}
++	if e.sortByKey && e.allNamespaces {
++		slices.SortStableFunc(namespaces, func(a, b *Namespace) int {
++			return strings.Compare(a.Key, b.Key)
++		})
++	}
+ 
+ 	for i := 0; i < len(namespaces); i++ {
+ 		doc := new(Document)
+@@ -133,7 +142,8 @@ func (e *Exporter) Export(ctx context.Context, encoding Encoding, w io.Writer) e
+ 			nextPage  string
+ 		)
+ 
+-		// export flags/variants in batches
++		// Fetch flags in batches before sorting so ordering is global rather than page-local.
++		var flags []*flipt.Flag
+ 		for batch := int32(0); remaining; batch++ {
+ 			resp, err := e.store.ListFlags(
+ 				ctx,
+@@ -147,136 +157,147 @@ func (e *Exporter) Export(ctx context.Context, encoding Encoding, w io.Writer) e
+ 				return fmt.Errorf("getting flags: %w", err)
+ 			}
+ 
+-			flags := resp.Flags
++			flags = append(flags, resp.Flags...)
+ 			nextPage = resp.NextPageToken
+ 			remaining = nextPage != ""
++		}
++		if e.sortByKey {
++			slices.SortStableFunc(flags, func(a, b *flipt.Flag) int {
++				return strings.Compare(a.Key, b.Key)
++			})
++		}
+ 
+-			for _, f := range flags {
+-				flag := &Flag{
+-					Key:         f.Key,
+-					Name:        f.Name,
+-					Type:        f.Type.String(),
+-					Description: f.Description,
+-					Enabled:     f.Enabled,
+-					Metadata:    f.Metadata.AsMap(),
+-				}
++		for _, f := range flags {
++			flag := &Flag{
++				Key:         f.Key,
++				Name:        f.Name,
++				Type:        f.Type.String(),
++				Description: f.Description,
++				Enabled:     f.Enabled,
++				Metadata:    f.Metadata.AsMap(),
++			}
+ 
+-				// map variant id => variant key
+-				variantKeys := make(map[string]string)
++			// map variant id => variant key
++			variantKeys := make(map[string]string)
+ 
+-				for _, v := range f.Variants {
+-					var attachment interface{}
++			for _, v := range f.Variants {
++				var attachment interface{}
+ 
+-					if v.Attachment != "" {
+-						if err := json.Unmarshal([]byte(v.Attachment), &attachment); err != nil {
+-							return fmt.Errorf("unmarshaling variant attachment: %w", err)
+-						}
++				if v.Attachment != "" {
++					if err := json.Unmarshal([]byte(v.Attachment), &attachment); err != nil {
++						return fmt.Errorf("unmarshaling variant attachment: %w", err)
+ 					}
++				}
+ 
+-					defaultVariant := false
+-					if f.DefaultVariant != nil {
+-						defaultVariant = f.DefaultVariant.Id == v.Id
+-					}
++				defaultVariant := false
++				if f.DefaultVariant != nil {
++					defaultVariant = f.DefaultVariant.Id == v.Id
++				}
+ 
+-					flag.Variants = append(flag.Variants, &Variant{
+-						Default:     defaultVariant,
+-						Key:         v.Key,
+-						Name:        v.Name,
+-						Description: v.Description,
+-						Attachment:  attachment,
+-					})
++				flag.Variants = append(flag.Variants, &Variant{
++					Default:     defaultVariant,
++					Key:         v.Key,
++					Name:        v.Name,
++					Description: v.Description,
++					Attachment:  attachment,
++				})
+ 
+-					variantKeys[v.Id] = v.Key
+-				}
++				variantKeys[v.Id] = v.Key
++			}
++			if e.sortByKey {
++				slices.SortStableFunc(flag.Variants, func(a, b *Variant) int {
++					return strings.Compare(a.Key, b.Key)
++				})
++			}
+ 
+-				// export rules for flag
+-				resp, err := e.store.ListRules(
+-					ctx,
+-					&flipt.ListRuleRequest{
+-						NamespaceKey: ns.Key,
+-						FlagKey:      flag.Key,
+-					},
+-				)
+-				if err != nil {
+-					return fmt.Errorf("getting rules for flag %q: %w", flag.Key, err)
+-				}
++			// export rules for flag
++			resp, err := e.store.ListRules(
++				ctx,
++				&flipt.ListRuleRequest{
++					NamespaceKey: ns.Key,
++					FlagKey:      flag.Key,
++				},
++			)
++			if err != nil {
++				return fmt.Errorf("getting rules for flag %q: %w", flag.Key, err)
++			}
+ 
+-				rules := resp.Rules
+-				for _, r := range rules {
+-					rule := &Rule{}
+-
+-					switch {
+-					case r.SegmentKey != "":
+-						rule.Segment = &SegmentEmbed{
+-							IsSegment: SegmentKey(r.SegmentKey),
+-						}
+-					case len(r.SegmentKeys) > 0:
+-						rule.Segment = &SegmentEmbed{
+-							IsSegment: &Segments{
+-								Keys:            r.SegmentKeys,
+-								SegmentOperator: r.SegmentOperator.String(),
+-							},
+-						}
+-					default:
+-						return fmt.Errorf("wrong format for rule segments")
+-					}
++			rules := resp.Rules
++			for _, r := range rules {
++				rule := &Rule{}
+ 
+-					for _, d := range r.Distributions {
+-						rule.Distributions = append(rule.Distributions, &Distribution{
+-							VariantKey: variantKeys[d.VariantId],
+-							Rollout:    d.Rollout,
+-						})
++				switch {
++				case r.SegmentKey != "":
++					rule.Segment = &SegmentEmbed{
++						IsSegment: SegmentKey(r.SegmentKey),
++					}
++				case len(r.SegmentKeys) > 0:
++					rule.Segment = &SegmentEmbed{
++						IsSegment: &Segments{
++							Keys:            r.SegmentKeys,
++							SegmentOperator: r.SegmentOperator.String(),
++						},
+ 					}
++				default:
++					return fmt.Errorf("wrong format for rule segments")
++				}
+ 
+-					flag.Rules = append(flag.Rules, rule)
++				for _, d := range r.Distributions {
++					rule.Distributions = append(rule.Distributions, &Distribution{
++						VariantKey: variantKeys[d.VariantId],
++						Rollout:    d.Rollout,
++					})
+ 				}
+ 
+-				rollouts, err := e.store.ListRollouts(ctx, &flipt.ListRolloutRequest{
+-					NamespaceKey: ns.Key,
+-					FlagKey:      flag.Key,
+-				})
+-				if err != nil {
+-					return fmt.Errorf("getting rollout rules for flag %q: %w", flag.Key, err)
++				flag.Rules = append(flag.Rules, rule)
++			}
++
++			rollouts, err := e.store.ListRollouts(ctx, &flipt.ListRolloutRequest{
++				NamespaceKey: ns.Key,
++				FlagKey:      flag.Key,
++			})
++			if err != nil {
++				return fmt.Errorf("getting rollout rules for flag %q: %w", flag.Key, err)
++			}
++
++			for _, r := range rollouts.Rules {
++				rollout := Rollout{
++					Description: r.Description,
+ 				}
+ 
+-				for _, r := range rollouts.Rules {
+-					rollout := Rollout{
+-						Description: r.Description,
++				switch rule := r.Rule.(type) {
++				case *flipt.Rollout_Segment:
++					rollout.Segment = &SegmentRule{
++						Value: rule.Segment.Value,
+ 					}
+ 
+-					switch rule := r.Rule.(type) {
+-					case *flipt.Rollout_Segment:
+-						rollout.Segment = &SegmentRule{
+-							Value: rule.Segment.Value,
+-						}
+-
+-						if rule.Segment.SegmentKey != "" {
+-							rollout.Segment.Key = rule.Segment.SegmentKey
+-						} else if len(rule.Segment.SegmentKeys) > 0 {
+-							rollout.Segment.Keys = rule.Segment.SegmentKeys
+-						}
+-
+-						if rule.Segment.SegmentOperator == flipt.SegmentOperator_AND_SEGMENT_OPERATOR {
+-							rollout.Segment.Operator = rule.Segment.SegmentOperator.String()
+-						}
+-					case *flipt.Rollout_Threshold:
+-						rollout.Threshold = &ThresholdRule{
+-							Percentage: rule.Threshold.Percentage,
+-							Value:      rule.Threshold.Value,
+-						}
++					if rule.Segment.SegmentKey != "" {
++						rollout.Segment.Key = rule.Segment.SegmentKey
++					} else if len(rule.Segment.SegmentKeys) > 0 {
++						rollout.Segment.Keys = rule.Segment.SegmentKeys
+ 					}
+ 
+-					flag.Rollouts = append(flag.Rollouts, &rollout)
++					if rule.Segment.SegmentOperator == flipt.SegmentOperator_AND_SEGMENT_OPERATOR {
++						rollout.Segment.Operator = rule.Segment.SegmentOperator.String()
++					}
++				case *flipt.Rollout_Threshold:
++					rollout.Threshold = &ThresholdRule{
++						Percentage: rule.Threshold.Percentage,
++						Value:      rule.Threshold.Value,
++					}
+ 				}
+ 
+-				doc.Flags = append(doc.Flags, flag)
++				flag.Rollouts = append(flag.Rollouts, &rollout)
+ 			}
++
++			doc.Flags = append(doc.Flags, flag)
+ 		}
+ 
+ 		remaining = true
+ 		nextPage = ""
+ 
+-		// export segments/constraints in batches
++		// Fetch segments in batches before sorting so ordering is global rather than page-local.
++		var segments []*flipt.Segment
+ 		for remaining {
+ 			resp, err := e.store.ListSegments(
+ 				ctx,
+@@ -290,30 +311,35 @@ func (e *Exporter) Export(ctx context.Context, encoding Encoding, w io.Writer) e
+ 				return fmt.Errorf("getting segments: %w", err)
+ 			}
+ 
+-			segments := resp.Segments
++			segments = append(segments, resp.Segments...)
+ 			nextPage = resp.NextPageToken
+ 			remaining = nextPage != ""
++		}
++		if e.sortByKey {
++			slices.SortStableFunc(segments, func(a, b *flipt.Segment) int {
++				return strings.Compare(a.Key, b.Key)
++			})
++		}
+ 
+-			for _, s := range segments {
+-				segment := &Segment{
+-					Key:         s.Key,
+-					Name:        s.Name,
+-					Description: s.Description,
+-					MatchType:   s.MatchType.String(),
+-				}
+-
+-				for _, c := range s.Constraints {
+-					segment.Constraints = append(segment.Constraints, &Constraint{
+-						Type:        c.Type.String(),
+-						Property:    c.Property,
+-						Operator:    c.Operator,
+-						Value:       c.Value,
+-						Description: c.Description,
+-					})
+-				}
++		for _, s := range segments {
++			segment := &Segment{
++				Key:         s.Key,
++				Name:        s.Name,
++				Description: s.Description,
++				MatchType:   s.MatchType.String(),
++			}
+ 
+-				doc.Segments = append(doc.Segments, segment)
++			for _, c := range s.Constraints {
++				segment.Constraints = append(segment.Constraints, &Constraint{
++					Type:        c.Type.String(),
++					Property:    c.Property,
++					Operator:    c.Operator,
++					Value:       c.Value,
++					Description: c.Description,
++				})
+ 			}
++
++			doc.Segments = append(doc.Segments, segment)
+ 		}
+ 
+ 		if err := enc.Encode(doc); err != nil {
